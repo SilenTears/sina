@@ -1,0 +1,81 @@
+apply plugin: 'com.android.application'
+
+def getProperty(String filename, String propName) {
+    def propsFile = rootProject.file(filename)
+    if (propsFile.exists()) {
+        def props = new Properties()
+        props.load(new FileInputStream(propsFile))
+        if (props[propName] != null) {
+            return props[propName]
+        } else {
+            print("No such property " + propName + " in file " + filename);
+        }
+    } else {
+        print(filename + " does not exist!")
+    }
+}
+
+android {
+    compileSdkVersion externalCompileSdkVersion
+    buildToolsVersion externalBuildToolsVersion
+    defaultConfig {
+        applicationId "cn.ryando.sina"
+        minSdkVersion externalMinSdkVersion
+        targetSdkVersion externalTargetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        buildConfigField "String", "TMDB_API_KEY", "\"${getProperty("local.properties", "tmdb_api_key")}\""
+        buildConfigField "String", "TMDB_BASE_URL", "\"http://api.themoviedb.org/\""
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+
+
+    // Add Dagger dependencies
+    dependencies {
+        compile 'com.google.dagger:dagger:2.14.1'
+        annotationProcessor 'com.google.dagger:dagger-compiler:2.14.1'
+    }
+    // If you're using classes in dagger.android you'll also want to include:
+    compile 'com.google.dagger:dagger-android:2.14.1'
+    compile 'com.google.dagger:dagger-android-support:2.14.1' // if you use the support libraries
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.14.1'
+
+    // Network
+    implementation "com.squareup.okhttp3:okhttp:${okHttpVersion}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+    implementation 'com.github.bumptech.glide:glide:4.2.0'
+
+    //retrofit
+    api ("com.squareup.retrofit2:retrofit:${rootProject.ext.retrofitVersion}") {
+        exclude module: 'okhttp'
+    }
+    api "com.squareup.retrofit2:converter-gson:${rootProject.ext.retrofitVersion}"
+    api "com.squareup.retrofit2:adapter-rxjava2:${rootProject.ext.retrofitVersion}"
+
+
+    //Support
+    implementation "com.android.support:design:${supportLibVersion}"
+    implementation "com.android.support:support-v4:${supportLibVersion}"
+    implementation "com.android.support:support-annotations:${supportLibVersion}"
+    implementation "com.android.support:palette-v7:${supportLibVersion}"
+    implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
+
+    // Rx
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+}
